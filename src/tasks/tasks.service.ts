@@ -16,8 +16,9 @@ export class TasksService {
     return `This action returns all tasks`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  async findOne(id: number) {
+    const task = await this.prisma.findTask(id);
+    return task;
   }
 
   update(id: number, updateTaskDto: UpdateTaskDto) {

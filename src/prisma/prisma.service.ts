@@ -21,4 +21,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
     return newTask;
   }
+
+  async findTask(id: number) {
+    const task = await this.task.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return task;
+  }
 }

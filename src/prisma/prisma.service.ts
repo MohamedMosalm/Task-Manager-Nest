@@ -41,4 +41,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
     return tasks;
   }
+
+  async deleteTask(id: number) {
+    const deletedTask = await this.task.delete({
+      where: {
+        id,
+      },
+    });
+
+    return deletedTask;
+  }
 }

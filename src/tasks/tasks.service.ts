@@ -6,8 +6,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class TasksService {
   constructor(private readonly prisma: PrismaService) {}
-  create(createTaskDto: CreateTaskDto) {
-    return 'This action adds a new task';
+
+  async create(createTaskDto: CreateTaskDto, userId: number) {
+    const newTask = await this.prisma.createTask(createTaskDto, userId);
+    return newTask;
   }
 
   findAll() {

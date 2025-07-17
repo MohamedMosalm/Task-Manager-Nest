@@ -17,7 +17,9 @@ export class TasksController {
 
   @Post()
   create(@Body() createTaskDto: CreateTaskDto) {
-    return this.tasksService.create(createTaskDto);
+    // TODO: In the future, get userId from JWT token/auth context
+    const userId = 1; // Temporary hardcoded value
+    return this.tasksService.create(createTaskDto, userId);
   }
 
   @Get()

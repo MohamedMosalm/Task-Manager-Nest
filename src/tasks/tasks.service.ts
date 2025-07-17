@@ -12,18 +12,27 @@ export class TasksService {
     return newTask;
   }
 
-  findAll(userId: number) {
-    const tasks = this.prisma.findAllTasks(userId);
+  async findAll(userId: number) {
+    const tasks = await this.prisma.findAllTasks(userId);
     return tasks;
   }
 
   async findOne(id: number) {
     const task = await this.prisma.findTask(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
     return task;
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+  async update(id: number, updateTaskDto: UpdateTaskDto) {
+    const existingTask = await this.prisma.findTask(id);
+    if (!existingTask) {
+      throw new NotFoundException('Task not found');
+    }
+
+    const updatedTask = await this.prisma.updateTask(id, updateTaskDto);
+    return updatedTask;
   }
 
   async remove(id: number) {

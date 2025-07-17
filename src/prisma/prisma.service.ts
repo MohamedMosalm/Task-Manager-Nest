@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { CreateTaskDto } from 'src/tasks/dto/create-task.dto';
+import { UpdateTaskDto } from 'src/tasks/dto/update-task.dto';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
@@ -37,9 +38,34 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       where: {
         userId,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     return tasks;
+  }
+
+  async updateTask(id: number, updateTaskDto: UpdateTaskDto) {
+    const updateData: Prisma.TaskUpdateInput = {};
+    if (updateTaskDto.title !== undefined) {
+      updateData.title = updateTaskDto.title;
+    }
+    if (updateTaskDto.content !== undefined) {
+      updateData.content = updateTaskDto.content;
+    }
+    if (updateTaskDto.completed !== undefined) {
+      updateData.completed = updateTaskDto.completed;
+    }
+
+    const updatedTask = await this.task.update({
+      where: {
+        id,
+      },
+      data: updateData,
+    });
+
+    return updatedTask;
   }
 
   async deleteTask(id: number) {

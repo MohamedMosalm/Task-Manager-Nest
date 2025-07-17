@@ -25,7 +25,9 @@ export class TasksController {
 
   @Get()
   findAll() {
-    return this.tasksService.findAll();
+    // TODO: In the future, get userId from JWT token/auth context
+    const userId = 1; // Temporary hardcoded value
+    return this.tasksService.findAll(userId);
   }
 
   @Get(':id')

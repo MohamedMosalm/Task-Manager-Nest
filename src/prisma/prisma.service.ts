@@ -31,4 +31,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
     return task;
   }
+
+  async findAllTasks(userId: number) {
+    const tasks = await this.task.findMany({
+      where: {
+        userId,
+      },
+    });
+
+    return tasks;
+  }
 }

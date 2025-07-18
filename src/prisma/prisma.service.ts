@@ -77,4 +77,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
     return deletedTask;
   }
+
+  async findUserByEmail(email: string) {
+    const user = await this.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    return user;
+  }
 }

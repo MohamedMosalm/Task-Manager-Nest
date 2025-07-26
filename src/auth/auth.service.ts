@@ -5,10 +5,14 @@ import {
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { LoginDto } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UsersService) {}
+  constructor(
+    private userService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
   async signIn(LoginDto: LoginDto) {
     const user = await this.userService.findUserByEmail(LoginDto.email);
@@ -22,8 +26,11 @@ export class AuthService {
     }
 
     const { hashedPassword, ...result } = user;
-    // TODO: Generate a JWT and return it here
-    // instead of the user object
-    return result;
+
+    const payload = { sub: user.id, username: user.email };
+    return {
+      result,
+      access_token: await this.jwtService.signAsync(payload),
+    };
   }
 }

@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient, Prisma } from '@prisma/client';
+import { RegisterDto } from 'src/auth/dto/register.dto';
 import { CreateTaskDto } from 'src/tasks/dto/create-task.dto';
 import { UpdateTaskDto } from 'src/tasks/dto/update-task.dto';
 
@@ -82,6 +83,19 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     const user = await this.user.findUnique({
       where: {
         email,
+      },
+    });
+
+    return user;
+  }
+
+  async createUser(registerDto: RegisterDto) {
+    const user = await this.user.create({
+      data: {
+        email: registerDto.email,
+        hashedPassword: registerDto.password,
+        firstName: registerDto.firstName,
+        lastName: registerDto.lastName,
       },
     });
 

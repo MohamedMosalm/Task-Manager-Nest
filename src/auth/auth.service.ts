@@ -14,7 +14,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signIn(LoginDto: LoginDto) {
+  async validateUser(LoginDto: LoginDto) {
     const user = await this.userService.findUserByEmail(LoginDto.email);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -32,5 +32,10 @@ export class AuthService {
       result,
       access_token: await this.jwtService.signAsync(payload),
     };
+  }
+
+  async signIn(LoginDto: LoginDto) {
+    const user = await this.validateUser(LoginDto);
+    return user;
   }
 }

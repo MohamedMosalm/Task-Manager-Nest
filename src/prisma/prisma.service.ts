@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient, Prisma } from '@prisma/client';
+import { RegisterDto } from 'src/auth/dto/register.dto';
 import { CreateTaskDto } from 'src/tasks/dto/create-task.dto';
 import { UpdateTaskDto } from 'src/tasks/dto/update-task.dto';
 
@@ -23,11 +24,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     return newTask;
   }
 
-  async findTask(id: number) {
+  async findTask(id: number, userId?: number) {
+    const whereClause: Prisma.TaskWhereUniqueInput = { id };
+    if (userId !== undefined) {
+      whereClause.userId = userId;
+    }
+
     const task = await this.task.findUnique({
-      where: {
-        id,
-      },
+      where: whereClause,
     });
 
     return task;
@@ -46,7 +50,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     return tasks;
   }
 
-  async updateTask(id: number, updateTaskDto: UpdateTaskDto) {
+  async updateTask(id: number, updateTaskDto: UpdateTaskDto, userId?: number) {
+    const whereClause: Prisma.TaskWhereUniqueInput = { id };
+    if (userId !== undefined) {
+      whereClause.userId = userId;
+    }
+
     const updateData: Prisma.TaskUpdateInput = {};
     if (updateTaskDto.title !== undefined) {
       updateData.title = updateTaskDto.title;
@@ -59,22 +68,46 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     }
 
     const updatedTask = await this.task.update({
-      where: {
-        id,
-      },
+      where: whereClause,
       data: updateData,
     });
 
     return updatedTask;
   }
 
-  async deleteTask(id: number) {
+  async deleteTask(id: number, userId?: number) {
+    const whereClause: Prisma.TaskWhereUniqueInput = { id };
+    if (userId !== undefined) {
+      whereClause.userId = userId;
+    }
+
     const deletedTask = await this.task.delete({
-      where: {
-        id,
-      },
+      where: whereClause,
     });
 
     return deletedTask;
+  }
+
+  async findUserByEmail(email: string) {
+    const user = await this.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    return user;
+  }
+
+  async createUser(registerDto: RegisterDto) {
+    const user = await this.user.create({
+      data: {
+        email: registerDto.email,
+        hashedPassword: registerDto.password,
+        firstName: registerDto.firstName,
+        lastName: registerDto.lastName,
+      },
+    });
+
+    return user;
   }
 }

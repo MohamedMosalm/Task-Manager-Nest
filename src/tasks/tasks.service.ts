@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -17,31 +21,45 @@ export class TasksService {
     return tasks;
   }
 
-  async findOne(id: number) {
-    const task = await this.prisma.findTask(id);
+  async findOne(id: number, userId: number) {
+    const task = await this.prisma.findTask(id, userId);
     if (!task) {
-      throw new NotFoundException('Task not found');
+      const taskExists = await this.prisma.findTask(id);
+      if (!taskExists) {
+        throw new NotFoundException('Task not found');
+      } else {
+        throw new ForbiddenException('You can only access your own tasks');
+      }
     }
+
     return task;
   }
 
-  async update(id: number, updateTaskDto: UpdateTaskDto) {
+  async update(id: number, updateTaskDto: UpdateTaskDto, userId: number) {
     const existingTask = await this.prisma.findTask(id);
     if (!existingTask) {
       throw new NotFoundException('Task not found');
     }
 
-    const updatedTask = await this.prisma.updateTask(id, updateTaskDto);
+    if (existingTask.userId !== userId) {
+      throw new ForbiddenException('You can only update your own tasks');
+    }
+
+    const updatedTask = await this.prisma.updateTask(id, updateTaskDto, userId);
     return updatedTask;
   }
 
-  async remove(id: number) {
+  async remove(id: number, userId: number) {
     const task = await this.prisma.findTask(id);
     if (!task) {
       throw new NotFoundException('Task not found');
     }
 
-    const deletedTask = await this.prisma.deleteTask(id);
+    if (task.userId !== userId) {
+      throw new ForbiddenException('You can only delete your own tasks');
+    }
+
+    const deletedTask = await this.prisma.deleteTask(id, userId);
     return deletedTask;
   }
 }
